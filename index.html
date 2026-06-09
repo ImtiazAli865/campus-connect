@@ -468,9 +468,11 @@ function showScreen(id) {
 // ============================================================
 window.addEventListener('load', async () => {
   document.getElementById('sql-script').textContent = SQL_SCRIPT;
-  const cfg = getSBConfig();
-  if (!cfg) { showScreen('setup-screen'); return; }
-  initSupabase(cfg.url, cfg.key);
+  // Hard-coded credentials — students ko setup screen nahi dikhegi
+  const SUPABASE_URL = 'https://rhobesvhfauuovvvxvrr.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJob2Jlc3ZoZmF1dW92dnZ4dnJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzY4ODYsImV4cCI6MjA5NjU1Mjg4Nn0.J_9Z_rKH05qIaEslqO0ok4jk8lQSgSlnk8qZVqe9yB0';
+  localStorage.setItem('cc_sb_config', JSON.stringify({url: SUPABASE_URL, key: SUPABASE_KEY}));
+  initSupabase(SUPABASE_URL, SUPABASE_KEY);
   showScreen('loading-screen');
   const ok = await testConnection();
   if (!ok) { showScreen('setup-screen'); toast('DB connection fail — check karein'); return; }
