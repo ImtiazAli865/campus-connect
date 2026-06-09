@@ -137,7 +137,7 @@ textarea{resize:vertical;min-height:70px}
       <div style="margin-bottom:1rem"><label>Role</label>
         <select id="login-role"><option value="student">Student</option><option value="teacher">Teacher</option></select>
       </div>
-      <button class="btn btp" style="width:100%;justify-content:center" onclick="doLogin()"><i class="ti ti-login"></i> Login</button>
+      <button class="btn btp" style="width:100%;justify-content:center" onclick="doLogin()"><i class="ti ti-login"></i> Daakhil Hon</button>
       <p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:10px"><i class="ti ti-world" style="font-size:12px"></i> Sab students ka data shared hai — group ka koi bhi dekh sakta hai</p>
     </div>
   </div>
@@ -266,6 +266,25 @@ textarea{resize:vertical;min-height:70px}
     <div class="form-row">
       <div><label>GitHub Link</label><input type="text" id="p-github" placeholder="https://github.com/..."/></div>
       <div><label>Live Demo</label><input type="text" id="p-demo" placeholder="https://..."/></div>
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Project File Upload (optional) — PDF, ZIP, PY, HTML etc.</label>
+      <div style="border:2px dashed var(--bd);border-radius:var(--r);padding:1.25rem;text-align:center;background:var(--sur2);cursor:pointer" onclick="document.getElementById('p-file').click()" ondragover="event.preventDefault()" ondrop="handleFileDrop(event)">
+        <i class="ti ti-cloud-upload" style="font-size:28px;color:var(--txt3);display:block;margin-bottom:6px"></i>
+        <p style="font-size:13px;color:var(--txt2)">File yahan drag karein ya <strong>click karein</strong></p>
+        <p style="font-size:11px;color:var(--txt3);margin-top:3px">PDF, ZIP, PY, HTML, DOCX, PPTX — max 50MB</p>
+        <input type="file" id="p-file" style="display:none" onchange="showFileName(this)"/>
+      </div>
+      <div id="file-name-show" style="font-size:12px;color:var(--ac);margin-top:5px;display:none">
+        <i class="ti ti-file"></i> <span id="fname"></span>
+        <button onclick="clearFile()" style="background:none;border:none;cursor:pointer;color:var(--dn);font-size:12px;margin-left:4px">✕ Remove</button>
+      </div>
+      <div id="upload-progress" style="display:none;margin-top:8px">
+        <div style="background:var(--sur2);border-radius:20px;height:8px;overflow:hidden;border:1px solid var(--bd)">
+          <div id="prog-bar" style="height:100%;background:var(--pr);border-radius:20px;width:0%;transition:width .3s"></div>
+        </div>
+        <p style="font-size:11px;color:var(--txt2);margin-top:4px" id="prog-text">Uploading...</p>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="btn btg" style="flex:1;justify-content:center" onclick="submitProject()"><i class="ti ti-check"></i> Project Save Karein</button>
@@ -569,6 +588,34 @@ function closeM(id){document.getElementById(id).classList.remove('open');}
 // ============================================================
 // SUBMIT PROJECT
 // ============================================================
+function showFileName(input) {
+  if(input.files[0]) {
+    document.getElementById('file-name-show').style.display='block';
+    document.getElementById('fname').textContent = input.files[0].name + ' (' + (input.files[0].size/1024/1024).toFixed(2) + ' MB)';
+  }
+}
+function clearFile() {
+  document.getElementById('p-file').value='';
+  document.getElementById('file-name-show').style.display='none';
+}
+function handleFileDrop(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f) { document.getElementById('p-file').files = e.dataTransfer.files; showFileName(document.getElementById('p-file')); }
+}
+async function uploadFileToStorage(file, roll, projectId) {
+  const path = roll + '/' + projectId + '_' + file.name;
+  document.getElementById('upload-progress').style.display='block';
+  document.getElementById('prog-text').textContent = 'Uploading ' + file.name + '...';
+  document.getElementById('prog-bar').style.width = '30%';
+  const { data, error } = await SB.storage.from('projects').upload(path, file, { upsert: true });
+  document.getElementById('prog-bar').style.width = '100%';
+  if(error) { toast('File upload error: ' + error.message); return null; }
+  const { data: urlData } = SB.storage.from('projects').getPublicUrl(path);
+  document.getElementById('upload-progress').style.display='none';
+  return urlData.publicUrl;
+}
+
 async function submitProject() {
   const title=document.getElementById('p-title').value.trim();
   const subject=document.getElementById('p-subject').value;
@@ -577,13 +624,23 @@ async function submitProject() {
   const demo=document.getElementById('p-demo').value.trim();
   if(!title){toast('Project naam likhein!');return;}
 
-  const row={id:genId(),title,subject,description:desc,github,demo,
+  const projId = genId();
+  let fileUrl = null;
+  const fileInput = document.getElementById('p-file');
+  if(fileInput.files[0]) {
+    fileUrl = await uploadFileToStorage(fileInput.files[0], CU.roll, projId);
+    if(!fileUrl) return;
+  }
+
+  const row={id:projId,title,subject,description:desc,github,demo,
+    file_url:fileUrl, file_name: fileInput.files[0] ? fileInput.files[0].name : null,
     student_roll:CU.roll,student_name:CU.name,created_at:Date.now()};
 
   const{error}=await SB.from('cc_projects').insert(row);
   if(error){toast('Error: '+error.message);return;}
 
   ['p-title','p-desc','p-github','p-demo'].forEach(id=>document.getElementById(id).value='');
+  clearFile();
   closeM('pm');
   await loadAllData();
   renderProjects();
@@ -807,6 +864,7 @@ function projCard(p) {
         <span>${timeAgo(p.created_at)}</span>
         ${p.github?`<a href="${p.github}" target="_blank" style="color:var(--pr);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:3px"><i class="ti ti-brand-github" style="font-size:13px"></i>GitHub</a>`:''}
         ${p.demo?`<a href="${p.demo}" target="_blank" style="color:var(--ac);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:3px"><i class="ti ti-external-link" style="font-size:13px"></i>Demo</a>`:''}
+        ${p.file_url?`<a href="${p.file_url}" target="_blank" style="color:var(--wn);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:3px;background:var(--wn-l);padding:2px 7px;border-radius:20px"><i class="ti ti-download" style="font-size:13px"></i>${p.file_name||'File Download'}</a>`:''}
       </div>
     </div>
     ${canDel?`<button class="btn btn-del" style="padding:5px 8px" onclick="delRow('cc_projects','${p.id}',renderProjects)"><i class="ti ti-trash"></i></button>`:''}
