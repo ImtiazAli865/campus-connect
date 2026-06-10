@@ -1,13 +1,36 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Campus Connect — PIAIC Shared Hub</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pr:#1a56db;--pr-l:#e8f0fe;--ac:#0e9f6e;--ac-l:#def7ec;
+  --wn:#c27803;--wn-l:#fdf6b2;--dn:#e02424;--dn-l:#fde8e8;
+  --bg:#f3f4f6;--sur:#fff;--sur2:#f9fafb;
+  --bd:rgba(0,0,0,0.10);--txt:#111827;--txt2:#6b7280;--txt3:#9ca3af;
+  --r:10px;--rl:14px;--fh:'Syne',sans-serif;--fb:'Plus Jakarta Sans',sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --pr:#4f86f7;--pr-l:#1e3a5f;--ac:#34d399;--ac-l:#064e3b;
+  --wn:#fbbf24;--wn-l:#451a03;--dn:#f87171;--dn-l:#450a0a;
+  --bg:#111827;--sur:#1f2937;--sur2:#111827;
+  --bd:rgba(255,255,255,0.10);--txt:#f9fafb;--txt2:#9ca3af;--txt3:#6b7280;
+}}
 body{font-family:var(--fb);background:var(--bg);color:var(--txt);min-height:100vh}
 .hdr{background:var(--sur);border-bottom:1px solid var(--bd);padding:0 1.25rem;display:flex;align-items:center;gap:.75rem;height:56px;position:sticky;top:0;z-index:50}
 .logo{font-family:var(--fh);font-size:17px;color:var(--pr);font-weight:700;display:flex;align-items:center;gap:6px}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
-.av{width:32px;height:32px;border-radius:50%;background:var(--pr-l);color:var(--pr);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0}
+.av{width:32px;height:32px;border-radius:50%;background:var(--pr-l);color:var(--pr);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer}
 .tabs{display:flex;gap:2px;padding:0 1.25rem;background:var(--sur);border-bottom:1px solid var(--bd);overflow-x:auto}
 .tab{background:none;border:none;cursor:pointer;padding:10px 13px;font-family:var(--fb);font-size:13px;font-weight:500;color:var(--txt2);display:flex;align-items:center;gap:5px;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .tab:hover{color:var(--txt)}.tab.active{color:var(--pr);border-bottom-color:var(--pr)}
-.tab i{font-size:15px}
-.main{max-width:900px;margin:0 auto;padding:1.25rem}
+.main{max-width:960px;margin:0 auto;padding:1.25rem}
 .panel{display:none}.panel.active{display:block}
 .card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:10px}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
@@ -28,15 +51,8 @@ textarea{resize:vertical;min-height:70px}
 .sbar input{background:none;border:none;outline:none;font-size:13px;font-family:var(--fb);color:var(--txt);width:100%;padding:0}
 .folder-card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:8px;cursor:pointer;transition:all .15s}
 .folder-card:hover{border-color:var(--pr);transform:translateY(-1px)}
-.folder-top{display:flex;align-items:center;gap:10px}
 .fav{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
-.folder-name{font-size:14px;font-weight:600}
-.folder-meta{font-size:12px;color:var(--txt2);margin-top:2px}
-.folder-stats{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
-.fstat{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:4px}
-.fstat strong{color:var(--txt)}
 .item-card{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--r);padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:10px}
-.item-icon{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .item-body{flex:1;min-width:0}
 .item-title{font-size:13px;font-weight:500;margin-bottom:3px}
 .item-meta{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -49,9 +65,9 @@ textarea{resize:vertical;min-height:70px}
 .scard-lbl{font-size:11px;color:var(--txt2);margin-top:2px}
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--txt);color:var(--bg);padding:10px 16px;border-radius:var(--r);font-size:13px;font-weight:500;transform:translateY(60px);opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:300px}
 .toast.show{transform:translateY(0);opacity:1}
-.overlay{display:none;min-height:500px;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;padding:2rem 1rem;z-index:40}
+.overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:flex-start;justify-content:center;padding:2rem 1rem;z-index:40;overflow-y:auto}
 .overlay.open{display:flex}
-.modal{background:var(--sur);border-radius:var(--rl);border:1px solid var(--bd);width:100%;max-width:520px;padding:1.25rem}
+.modal{background:var(--sur);border-radius:var(--rl);border:1px solid var(--bd);width:100%;max-width:520px;padding:1.25rem;margin:auto}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .modal-title{font-family:var(--fh);font-size:16px;font-weight:700}
 .close-btn{background:none;border:none;cursor:pointer;color:var(--txt2);font-size:20px;padding:2px}
@@ -59,8 +75,8 @@ textarea{resize:vertical;min-height:70px}
 .login-box{background:var(--sur);border:1px solid var(--bd);border-radius:var(--rl);padding:2rem;width:100%;max-width:380px}
 .login-logo{font-family:var(--fh);font-size:24px;color:var(--pr);text-align:center;margin-bottom:.25rem}
 .login-sub{font-size:13px;color:var(--txt2);text-align:center;margin-bottom:1.5rem}
-.back-btn{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--txt2);font-family:var(--fb);padding:0;margin-bottom:1rem;transition:color .15s}
-.back-btn:hover{color:var(--pr)}.back-btn i{font-size:16px}
+.back-btn{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--txt2);font-family:var(--fb);padding:0;margin-bottom:1rem}
+.back-btn:hover{color:var(--pr)}
 .empty{text-align:center;padding:2rem 1rem;color:var(--txt2)}
 .empty i{font-size:36px;display:block;margin-bottom:8px;color:var(--txt3)}
 .empty p{font-size:13px}
@@ -68,67 +84,748 @@ textarea{resize:vertical;min-height:70px}
 .ann.urgent{border-left:3px solid var(--dn)}.ann.infob{border-left:3px solid var(--pr)}
 .ann-icon{width:34px;height:34px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .section-lbl{font-size:12px;font-weight:600;color:var(--txt2);margin:1rem 0 8px;display:flex;align-items:center;gap:5px}
-.loading{text-align:center;padding:2rem;color:var(--txt2);font-size:13px}
-.ai-chat-wrap{display:flex;flex-direction:column;height:520px}
-.ai-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px;background:var(--sur2);border-radius:var(--r);border:1px solid var(--bd);margin-bottom:10px}
-.ai-msg{max-width:80%;padding:10px 14px;border-radius:var(--rl);font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.folder-stats{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd)}
+.fstat{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:4px}
+.fstat strong{color:var(--txt)}
+.online-badge{display:inline-block;width:7px;height:7px;background:var(--ac);border-radius:50%;margin-left:4px}
+/* AI Styles */
+.ai-wrap{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.ai-messages{height:380px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px;background:var(--sur2);border-radius:var(--r);border:1px solid var(--bd);margin-bottom:10px}
+.ai-msg{max-width:85%;padding:10px 14px;border-radius:var(--rl);font-size:13px;line-height:1.6;word-break:break-word}
 .ai-msg.user{background:var(--pr);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.ai-msg.assistant{background:var(--sur);color:var(--txt);align-self:flex-start;border:1px solid var(--bd);border-bottom-left-radius:4px}
-.ai-msg.thinking{background:var(--sur);color:var(--txt2);align-self:flex-start;border:1px dashed var(--bd);font-style:italic}
-.ai-input-row{display:flex;gap:8px;align-items:flex-end}
-.ai-input-row textarea{flex:1;border:1px solid var(--bd);border-radius:var(--r);padding:10px 12px;font-family:var(--fb);font-size:13px;color:var(--txt);background:var(--sur2);outline:none;resize:none;min-height:44px;max-height:120px;transition:border-color .15s}
-.ai-input-row textarea:focus{border-color:var(--pr)}
-.review-tabs{display:flex;gap:6px;margin-bottom:12px}
-.rtab{background:none;border:1px solid var(--bd);border-radius:var(--r);padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--txt2);font-family:var(--fb);transition:all .15s}
-.rtab.active{background:var(--pr);color:#fff;border-color:var(--pr)}
-.ai-result{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--r);padding:1rem;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;display:none}
-.ai-result.show{display:block}
+.ai-msg.bot{background:var(--sur);color:var(--txt);align-self:flex-start;border:1px solid var(--bd);border-bottom-left-radius:4px}
+.ai-msg.thinking{background:var(--sur2);color:var(--txt2);align-self:flex-start;border:1px dashed var(--bd);font-style:italic;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ai-input-row{display:flex;gap:8px}
+.ai-input-row input{flex:1;border:1px solid var(--bd);border-radius:var(--r);padding:9px 12px;font-family:var(--fb);font-size:13px;color:var(--txt);background:var(--sur2);outline:none}
+.ai-input-row input:focus{border-color:var(--pr)}
 .quick-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .qbtn{background:var(--sur);border:1px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--txt2);font-family:var(--fb);transition:all .15s}
 .qbtn:hover{background:var(--pr-l);color:var(--pr);border-color:var(--pr)}
-.online-badge{display:inline-block;width:7px;height:7px;background:var(--ac);border-radius:50%;margin-left:4px}
-.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.rtabs{display:flex;gap:6px;margin-bottom:12px}
+.rtab{background:none;border:1px solid var(--bd);border-radius:var(--r);padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--txt2);font-family:var(--fb);transition:all .15s}
+.rtab.active{background:var(--pr);color:#fff;border-color:var(--pr)}
+.review-result{background:var(--sur2);border:1px solid var(--bd);border-radius:var(--r);padding:1rem;font-size:13px;line-height:1.7;max-height:350px;overflow-y:auto;display:none}
+.review-result.show{display:block}
+.upload-drop{border:2px dashed var(--bd);border-radius:var(--r);padding:1.25rem;text-align:center;background:var(--sur2);cursor:pointer;transition:border-color .15s}
+.upload-drop:hover{border-color:var(--pr)}
+pre{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:12px;overflow-x:auto;font-size:12px;margin:8px 0;font-family:monospace;white-space:pre-wrap}
+code{background:var(--sur2);padding:2px 6px;border-radius:4px;font-size:12px;font-family:monospace}
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN — shown if Supabase not configured -->
-<div id="setup-screen" style="display:none">
+<!-- LOGIN -->
+<div id="login-screen">
 <div class="login-wrap">
 <div class="login-box">
-<div class="login-logo"><i class="ti ti-settings"></i> Setup</div>
-<div class="login-sub" style="margin-bottom:1rem">Supabase credentials set karein (ek baar sirf aap karein)</div>
-<div style="background:var(--pr-l);border-radius:var(--r);padding:12px;margin-bottom:1rem;font-size:12px;color:var(--pr)">
-<strong>Steps:</strong><br>
-1. <a href="https://supabase.com" target="_blank" style="color:var(--pr)">supabase.com</a> par free account banayein<br>
-2. New project create karein<br>
-3. Project Settings → API → URL aur anon key copy karein<br>
-4. SQL Editor mein neeche wala script chalayein
-</div>
-<div style="margin-bottom:8px"><label>Supabase URL</label><input type="text" id="sb-url" placeholder="https://xxxxx.supabase.co"/></div>
-<div style="margin-bottom:8px"><label>Supabase Anon Key</label><input type="text" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."/></div>
-<button class="btn btp" style="width:100%;justify-content:center;margin-bottom:8px" onclick="saveSupabaseConfig()"><i class="ti ti-check"></i> Save & Connect</button>
-<details style="font-size:11px;color:var(--txt2)">
-<summary style="cursor:pointer">SQL Script (Supabase SQL Editor mein run karein)</summary>
-<pre id="sql-script" style="background:var(--sur2);padding:8px;border-radius:var(--r);margin-top:8px;font-size:10px;overflow-x:auto;white-space:pre-wrap"></pre>
-</details>
+  <div class="login-logo"><i class="ti ti-school"></i> Campus Connect</div>
+  <div class="login-sub">PIAIC Student Hub — Sab ka data ek jagah</div>
+  <div style="margin-bottom:8px"><label>Naam *</label><input type="text" id="ln" placeholder="Ali Raza"/></div>
+  <div style="margin-bottom:8px"><label>Roll Number *</label><input type="text" id="lr" placeholder="PIAIC12345"/></div>
+  <div style="margin-bottom:1rem"><label>Role</label>
+    <select id="lrole"><option value="student">Student</option><option value="teacher">Teacher</option></select>
+  </div>
+  <button class="btn btp" style="width:100%;justify-content:center" onclick="doLogin()"><i class="ti ti-login"></i> Login</button>
+  <p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:10px">Sab students ka data shared hai</p>
 </div>
 </div>
 </div>
 
-<!-- LOGIN SCREEN -->
-<div id="login-screen" style="display:none">
-<div class="login-wrap">
-<div class="login-box">
-<div class="login-logo"><i class="ti ti-school"></i> Campus Connect</div>
-<div class="login-sub">PIAIC Student Shared Hub — Sab ka data ek jagah</div>
-<div style="margin-bottom:8px"><label>Aapka Naam *</label><input type="text" id="login-name" placeholder="Jaise: Ali Raza"/></div>
-<div style="margin-bottom:8px"><label>Roll Number / Student ID *</label><input type="text" id="login-roll" placeholder="Jaise: PIAIC12345"/></div>
-<div style="margin-bottom:1rem"><label>Role</label>
-<select id="login-role"><option value="student">Student</option><option value="teacher">Teacher</option></select>
+<!-- LOADING -->
+<div id="loading-screen" style="display:none">
+<div class="login-wrap"><div style="text-align:center;color:var(--txt2)"><i class="ti ti-loader" style="font-size:36px;display:block;margin-bottom:8px"></i>Loading...</div></div>
 </div>
-      <button class="btn btp" style="width:100%;justify-content:center" onclick="doLogin()"><i class="ti ti-login"></i> Daakhil Hon</button>
-      <button class="btn btp" style="width:100%;justify-content:center" onclick="doLogin()"><i class="ti ti-login"></i> Login</button>
-<p style="font-size:11px;color:var(--txt3);text-align:center;margin-top:10px"><i class="ti ti-world" style="font-size:12px"></i> Sab students ka data shared hai — group ka koi bhi dekh sakta hai</p>
+
+<!-- APP -->
+<div id="main-app" style="display:none">
+<header class="hdr">
+  <div class="logo"><i class="ti ti-school"></i> Campus Connect</div>
+  <div style="font-size:12px;color:var(--ac);display:flex;align-items:center;gap:4px"><span class="online-badge"></span><span id="online-count"></span></div>
+  <div class="hdr-right">
+    <span style="font-size:13px;color:var(--txt2)" id="hdr-uname"></span>
+    <div class="av" id="hdr-av"></div>
+    <button class="btn" onclick="doLogout()" style="padding:5px 10px"><i class="ti ti-logout"></i></button>
+  </div>
+</header>
+<div class="tabs">
+  <button class="tab active" onclick="goTab('home',this)"><i class="ti ti-home"></i> Home</button>
+  <button class="tab" onclick="goTab('students',this)"><i class="ti ti-users"></i> Students</button>
+  <button class="tab" onclick="goTab('projects',this)"><i class="ti ti-folder"></i> Projects</button>
+  <button class="tab" onclick="goTab('questions',this)"><i class="ti ti-message-dots"></i> Q&A</button>
+  <button class="tab" onclick="goTab('announcements',this)"><i class="ti ti-speakerphone"></i> Notices</button>
+  <button class="tab" onclick="goTab('ai',this)"><i class="ti ti-sparkles"></i> AI Assistant</button>
+</div>
+<div class="main">
+
+<!-- HOME -->
+<div class="panel active" id="panel-home">
+  <div class="stats-row" id="home-stats"></div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Kya karna chahte hain?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btg" style="justify-content:center;padding:14px;flex-direction:column;gap:4px" onclick="goTab('projects',null);setTimeout(()=>openM('pm'),100)">
+        <i class="ti ti-folder-plus" style="font-size:22px"></i><span>Project Upload</span>
+      </button>
+      <button class="btn btp" style="justify-content:center;padding:14px;flex-direction:column;gap:4px" onclick="goTab('questions',null);setTimeout(()=>openM('qm'),100)">
+        <i class="ti ti-message-plus" style="font-size:22px"></i><span>Sawaal Pochein</span>
+      </button>
+    </div>
+  </div>
+  <div class="card-title" style="margin-bottom:10px">Recent Activity</div>
+  <div id="home-feed"></div>
+</div>
+
+<!-- STUDENTS -->
+<div class="panel" id="panel-students">
+  <div id="stu-list-view">
+    <div class="card-head"><div class="card-title">Tamam Students</div><span id="stu-count" style="font-size:12px;color:var(--txt2)"></span></div>
+    <div class="sbar"><i class="ti ti-search"></i><input type="text" placeholder="Naam ya Roll Number..." id="stu-search" oninput="renderStudents()"/></div>
+    <div id="stu-list"></div>
+  </div>
+  <div id="stu-detail" style="display:none">
+    <button class="back-btn" onclick="closeStuDetail()"><i class="ti ti-arrow-left"></i> Wapis</button>
+    <div class="card" id="stu-detail-hdr"></div>
+    <div id="stu-detail-projs"></div>
+    <div id="stu-detail-qs"></div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="panel" id="panel-projects">
+  <div class="card-head"><div class="card-title">Tamam Projects</div>
+    <button class="btn btp" onclick="openM('pm')"><i class="ti ti-plus"></i> Add Project</button>
+  </div>
+  <div class="sbar"><i class="ti ti-search"></i><input type="text" placeholder="Project naam, student ya roll number..." id="proj-search" oninput="renderProjects()"/></div>
+  <div class="filter-row" id="pf">
+    <button class="btn btp" onclick="setPF('all',this)">Sab</button>
+    <button class="btn" onclick="setPF('python',this)">Python</button>
+    <button class="btn" onclick="setPF('ai',this)">AI/ML</button>
+    <button class="btn" onclick="setPF('web',this)">Web Dev</button>
+    <button class="btn" onclick="setPF('ds',this)">Data Science</button>
+    <button class="btn" onclick="setPF('other',this)">Aur</button>
+  </div>
+  <div id="proj-list"></div>
+</div>
+
+<!-- Q&A -->
+<div class="panel" id="panel-questions">
+  <div class="card-head"><div class="card-title">Q&A Forum</div>
+    <button class="btn btp" onclick="openM('qm')"><i class="ti ti-plus"></i> Sawaal Pochein</button>
+  </div>
+  <div class="sbar"><i class="ti ti-search"></i><input type="text" placeholder="Sawaal, naam ya roll number..." id="qa-search" oninput="renderQA()"/></div>
+  <div id="qa-list"></div>
+</div>
+
+<!-- ANNOUNCEMENTS -->
+<div class="panel" id="panel-announcements">
+  <div class="card-head"><div class="card-title">Announcements</div>
+    <button class="btn btp" id="ann-add-btn" style="display:none" onclick="openM('am')"><i class="ti ti-plus"></i> Post</button>
+  </div>
+  <div id="ann-list"></div>
+</div>
+
+<!-- AI ASSISTANT -->
+<div class="panel" id="panel-ai">
+  <div class="ai-wrap">
+    <!-- CHATBOT -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title"><i class="ti ti-robot" style="color:var(--pr)"></i> AI Tutor</div>
+        <button class="btn" style="font-size:11px;padding:4px 10px" onclick="clearChat()"><i class="ti ti-trash"></i> Clear</button>
+      </div>
+      <div class="quick-btns">
+        <button class="qbtn" onclick="quickQ('Python mein list comprehension kya hoti hai?')">Python List</button>
+        <button class="qbtn" onclick="quickQ('Machine Learning ke main types kya hain?')">ML Types</button>
+        <button class="qbtn" onclick="quickQ('Neural network kaise kaam karta hai?')">Neural Net</button>
+        <button class="qbtn" onclick="quickQ('Pandas DataFrame kaise use karein?')">Pandas</button>
+        <button class="qbtn" onclick="quickQ('OOP concepts Python mein explain karo')">OOP</button>
+        <button class="qbtn" onclick="quickQ('GitHub par project kaise deploy karein?')">GitHub</button>
+      </div>
+      <div class="ai-messages" id="chat-msgs">
+        <div class="ai-msg bot">Assalam o Alaikum! 👋 Main aapka AI Tutor hun. Python, AI/ML, Data Science, Web Dev — kisi bhi topic par sawaal poochein, seedha jawab milay ga!</div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="chat-input" placeholder="Sawaal likhein..." onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="btn btp" style="padding:9px 14px;flex-shrink:0" onclick="sendChat()" id="chat-btn"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+
+    <!-- PROJECT REVIEW -->
+    <div class="card">
+      <div class="card-head"><div class="card-title"><i class="ti ti-code-circle" style="color:var(--ac)"></i> AI Project Review</div></div>
+      <div class="rtabs">
+        <button class="rtab active" onclick="setRT('code',this)"><i class="ti ti-clipboard"></i> Code</button>
+        <button class="rtab" onclick="setRT('desc',this)"><i class="ti ti-file-description"></i> Description</button>
+        <button class="rtab" onclick="setRT('link',this)"><i class="ti ti-link"></i> GitHub/Drive</button>
+        <button class="rtab" onclick="setRT('file',this)"><i class="ti ti-upload"></i> File</button>
+      </div>
+
+      <div id="rt-code">
+        <textarea id="rv-code" placeholder="Yahan apna code paste karein..." style="height:150px;font-family:monospace;font-size:12px"></textarea>
+      </div>
+      <div id="rt-desc" style="display:none">
+        <textarea id="rv-desc" placeholder="Project ka description likhein..." style="height:150px"></textarea>
+      </div>
+      <div id="rt-link" style="display:none">
+        <input type="text" id="rv-link" placeholder="https://github.com/... ya https://drive.google.com/..." style="margin-bottom:8px"/>
+        <textarea id="rv-link-desc" placeholder="Project ke baare mein thoda batao (optional)..." style="height:80px"></textarea>
+      </div>
+      <div id="rt-file" style="display:none">
+        <div class="upload-drop" onclick="document.getElementById('rv-file-inp').click()">
+          <i class="ti ti-cloud-upload" style="font-size:28px;color:var(--txt3);display:block;margin-bottom:6px"></i>
+          <p style="font-size:13px;color:var(--txt2)">File select karein — PDF, PY, HTML, TXT</p>
+          <input type="file" id="rv-file-inp" style="display:none" accept=".py,.txt,.html,.css,.js,.pdf,.md,.ipynb" onchange="loadFileForReview(this)"/>
+        </div>
+        <div id="rv-file-name" style="font-size:12px;color:var(--ac);margin-top:6px"></div>
+      </div>
+
+      <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap">
+        <button class="qbtn" onclick="setRType('bugs')">🐛 Bugs</button>
+        <button class="qbtn" onclick="setRType('improve')">⚡ Improve</button>
+        <button class="qbtn" onclick="setRType('explain')">📖 Explain</button>
+        <button class="qbtn" onclick="setRType('grade')">📊 Grade</button>
+      </div>
+      <button class="btn btg" style="width:100%;justify-content:center;margin-bottom:10px" onclick="doReview()" id="review-btn">
+        <i class="ti ti-sparkles"></i> AI Review Karein
+      </button>
+      <div id="review-result" class="review-result"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+</div><!-- end app -->
+
+<!-- MODALS -->
+<div class="overlay" id="pm">
+<div class="modal">
+  <div class="modal-head"><div class="modal-title"><i class="ti ti-folder-plus"></i> Project Add</div>
+    <button class="close-btn" onclick="closeM('pm')"><i class="ti ti-x"></i></button></div>
+  <div class="form-row">
+    <div><label>Naam *</label><input type="text" id="p-title" placeholder="Project ka naam"/></div>
+    <div><label>Subject</label><select id="p-subject">
+      <option value="python">Python</option><option value="ai">AI/ML</option>
+      <option value="web">Web Dev</option><option value="ds">Data Science</option><option value="other">Aur</option>
+    </select></div>
+  </div>
+  <div class="form-row single"><div><label>Description</label><textarea id="p-desc" placeholder="Project ke baare mein..."></textarea></div></div>
+  <div class="form-row">
+    <div><label>GitHub Link</label><input type="text" id="p-github" placeholder="https://github.com/..."/></div>
+    <div><label>Live Demo</label><input type="text" id="p-demo" placeholder="https://..."/></div>
+  </div>
+  <div style="margin-bottom:8px">
+    <label>File Upload (PDF, ZIP, PY etc.)</label>
+    <div class="upload-drop" onclick="document.getElementById('p-file').click()">
+      <i class="ti ti-cloud-upload" style="font-size:24px;color:var(--txt3);display:block;margin-bottom:4px"></i>
+      <p style="font-size:12px;color:var(--txt2)">Click ya drag karein — max 50MB</p>
+      <input type="file" id="p-file" style="display:none" onchange="showFName(this)"/>
+    </div>
+    <div id="p-file-name" style="font-size:12px;color:var(--ac);margin-top:5px;display:none"></div>
+    <div id="p-upload-prog" style="display:none;margin-top:6px">
+      <div style="background:var(--sur2);border-radius:20px;height:6px;overflow:hidden"><div id="p-prog-bar" style="height:100%;background:var(--pr);border-radius:20px;width:0%;transition:width .3s"></div></div>
+      <p style="font-size:11px;color:var(--txt2);margin-top:3px" id="p-prog-txt">Uploading...</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btg" style="flex:1;justify-content:center" onclick="submitProject()"><i class="ti ti-check"></i> Save</button>
+    <button class="btn" onclick="closeM('pm')">Cancel</button>
+  </div>
 </div>
 </div>
+
+<div class="overlay" id="qm">
+<div class="modal">
+  <div class="modal-head"><div class="modal-title"><i class="ti ti-message-plus"></i> Sawaal</div>
+    <button class="close-btn" onclick="closeM('qm')"><i class="ti ti-x"></i></button></div>
+  <div class="form-row single"><div><label>Sawaal *</label><input type="text" id="q-title" placeholder="Aapka sawaal..."/></div></div>
+  <div class="form-row">
+    <div><label>Subject</label><select id="q-subject">
+      <option value="python">Python</option><option value="ai">AI/ML</option>
+      <option value="web">Web Dev</option><option value="ds">Data Science</option><option value="general">General</option>
+    </select></div>
+    <div><label>Detail</label><input type="text" id="q-detail" placeholder="Thoda aur batao..."/></div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btp" style="flex:1;justify-content:center" onclick="submitQA()"><i class="ti ti-send"></i> Post</button>
+    <button class="btn" onclick="closeM('qm')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="ansm">
+<div class="modal">
+  <div class="modal-head"><div class="modal-title"><i class="ti ti-message-reply"></i> Jawab</div>
+    <button class="close-btn" onclick="closeM('ansm')"><i class="ti ti-x"></i></button></div>
+  <div style="background:var(--sur2);border-radius:var(--r);padding:10px;margin-bottom:12px;font-size:13px" id="ans-q-prev"></div>
+  <div class="form-row single"><div><label>Jawab *</label><textarea id="a-text" placeholder="Jawab likhein..."></textarea></div></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btp" style="flex:1;justify-content:center" onclick="submitAnswer()"><i class="ti ti-check"></i> Post</button>
+    <button class="btn" onclick="closeM('ansm')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="am">
+<div class="modal">
+  <div class="modal-head"><div class="modal-title"><i class="ti ti-speakerphone"></i> Announcement</div>
+    <button class="close-btn" onclick="closeM('am')"><i class="ti ti-x"></i></button></div>
+  <div class="form-row single"><div><label>Title *</label><input type="text" id="an-title" placeholder="Announcement..."/></div></div>
+  <div class="form-row">
+    <div><label>Type</label><select id="an-type">
+      <option value="general">General</option><option value="urgent">Urgent</option>
+      <option value="schedule">Schedule</option><option value="resource">Resource</option><option value="event">Event</option>
+    </select></div>
+    <div><label>Extra Info</label><input type="text" id="an-extra" placeholder="Koi detail..."/></div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btp" style="flex:1;justify-content:center" onclick="submitAnn()"><i class="ti ti-send"></i> Post</button>
+    <button class="btn" onclick="closeM('am')">Cancel</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://rhobesvhfauuovvvxvrr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJob2Jlc3ZoZmF1dW92dnZ4dnJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzY4ODYsImV4cCI6MjA5NjU1Mjg4Nn0.J_9Z_rKH05qIaEslqO0ok4jk8lQSgSlnk8qZVqe9yB0';
+const API_KEY = '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';
+let SB = null;
+let CU = null;
+let projFilter = 'all';
+let ansQid = null;
+let reviewType = 'improve';
+let reviewTab = 'code';
+let fileContent = '';
+let chatHistory = [];
+let allStudents=[], allProjects=[], allQuestions=[], allAnswers=[], allAnn=[];
+
+// HELPERS
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function initials(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function timeAgo(ts){
+  const d=Math.floor((Date.now()-ts)/1000);
+  if(d<60)return 'Abhi';if(d<3600)return Math.floor(d/60)+' min pehle';
+  if(d<86400)return Math.floor(d/3600)+' ghante pehle';return Math.floor(d/86400)+' din pehle';
+}
+function subLabel(s){const m={python:'Python',ai:'AI/ML',web:'Web Dev',ds:'Data Science',general:'General',other:'Aur'};return m[s]||s;}
+function subColor(s){const m={python:'blue',ai:'green',web:'red',ds:'amber',general:'blue',other:'amber'};return m[s]||'blue';}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+const AVC=[['#e8f0fe','#1a56db'],['#def7ec','#0e9f6e'],['#fdf6b2','#c27803'],['#fde8e8','#e02424'],['#f3e8ff','#7c3aed']];
+function avColor(r){const i=(r||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0)%5;return AVC[i];}
+function escH(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtMsg(t){
+  if(!t)return '';
+  t=escH(t);
+  t=t.split('\n').join('<br>');
+  return t;
+}
+
+
+function showScreen(id){
+  ['login-screen','loading-screen','main-app'].forEach(s=>{
+    document.getElementById(s).style.display=s===id?'block':'none';
+  });
+}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+
+// BOOT
+window.addEventListener('load',async()=>{
+  showScreen('loading-screen');
+  try{
+    SB=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const{error}=await SB.from('cc_students').select('roll').limit(1);
+    if(error)throw error;
+    showScreen('login-screen');
+  }catch(e){toast('DB error: '+e.message);showScreen('login-screen');}
+});
+
+// AUTH
+async function doLogin(){
+  const name=document.getElementById('ln').value.trim();
+  const roll=document.getElementById('lr').value.trim().toUpperCase();
+  const role=document.getElementById('lrole').value;
+  if(!name){toast('Naam likhein!');return;}
+  if(!roll){toast('Roll Number likhein!');return;}
+  showScreen('loading-screen');
+  await SB.from('cc_students').upsert({roll,name,role,joined_at:Date.now()},{onConflict:'roll'});
+  CU={name,roll,role};
+  document.getElementById('hdr-uname').textContent=name+' ('+roll+')';
+  document.getElementById('hdr-av').textContent=initials(name);
+  if(role==='teacher')document.getElementById('ann-add-btn').style.display='flex';
+  await loadAll();
+  showScreen('main-app');
+  setupRealtime();
+  renderHome();
+}
+function doLogout(){CU=null;showScreen('login-screen');}
+
+// DATA
+async function loadAll(){
+  const[s,p,q,a,an]=await Promise.all([
+    SB.from('cc_students').select('*').order('joined_at',{ascending:false}),
+    SB.from('cc_projects').select('*').order('created_at',{ascending:false}),
+    SB.from('cc_questions').select('*').order('created_at',{ascending:false}),
+    SB.from('cc_answers').select('*').order('created_at',{ascending:true}),
+    SB.from('cc_announcements').select('*').order('created_at',{ascending:false})
+  ]);
+  allStudents=s.data||[];allProjects=p.data||[];
+  allQuestions=q.data||[];allAnswers=a.data||[];allAnn=an.data||[];
+  document.getElementById('online-count').textContent=allStudents.length+' registered';
+}
+function setupRealtime(){
+  SB.channel('cc').on('postgres_changes',{event:'*',schema:'public'},async()=>{
+    await loadAll();renderHome();
+    const at=document.querySelector('.tab.active');
+    if(at){
+      const t=at.textContent.toLowerCase();
+      if(t.includes('student'))renderStudents();
+      else if(t.includes('project'))renderProjects();
+      else if(t.includes('q&a'))renderQA();
+      else if(t.includes('notice'))renderAnn();
+    }
+  }).subscribe();
+}
+
+// TABS
+function goTab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  else document.querySelectorAll('.tab').forEach(b=>{if(b.textContent.toLowerCase().includes(name.slice(0,4)))b.classList.add('active');});
+  const map={home:renderHome,students:renderStudents,projects:renderProjects,questions:renderQA,announcements:renderAnn};
+  if(map[name])map[name]();
+}
+
+// SUBMIT PROJECT
+function showFName(inp){
+  if(inp.files[0]){
+    document.getElementById('p-file-name').style.display='block';
+    document.getElementById('p-file-name').textContent='📎 '+inp.files[0].name+' ('+(inp.files[0].size/1024/1024).toFixed(2)+'MB)';
+  }
+}
+async function submitProject(){
+  const title=document.getElementById('p-title').value.trim();
+  const subject=document.getElementById('p-subject').value;
+  const desc=document.getElementById('p-desc').value.trim();
+  const github=document.getElementById('p-github').value.trim();
+  const demo=document.getElementById('p-demo').value.trim();
+  if(!title){toast('Project naam likhein!');return;}
+  const projId=genId();
+  let fileUrl=null,fileName=null;
+  const fi=document.getElementById('p-file');
+  if(fi.files[0]){
+    const f=fi.files[0];
+    fileName=f.name;
+    document.getElementById('p-upload-prog').style.display='block';
+    document.getElementById('p-prog-bar').style.width='40%';
+    document.getElementById('p-prog-txt').textContent='Uploading '+f.name+'...';
+    const{data,error}=await SB.storage.from('projects').upload(CU.roll+'/'+projId+'_'+f.name,f,{upsert:true});
+    if(error){toast('Upload error: '+error.message);return;}
+    const{data:ud}=SB.storage.from('projects').getPublicUrl(CU.roll+'/'+projId+'_'+f.name);
+    fileUrl=ud.publicUrl;
+    document.getElementById('p-prog-bar').style.width='100%';
+    setTimeout(()=>document.getElementById('p-upload-prog').style.display='none',1000);
+  }
+  const{error}=await SB.from('cc_projects').insert({id:projId,title,subject,description:desc,github,demo,file_url:fileUrl,file_name:fileName,student_roll:CU.roll,student_name:CU.name,created_at:Date.now()});
+  if(error){toast('Error: '+error.message);return;}
+  ['p-title','p-desc','p-github','p-demo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-file').value='';
+  document.getElementById('p-file-name').style.display='none';
+  closeM('pm');
+  await loadAll();renderProjects();renderHome();
+  toast('✓ Project save ho gaya!');
+}
+
+// SUBMIT QA
+async function submitQA(){
+  const title=document.getElementById('q-title').value.trim();
+  const subject=document.getElementById('q-subject').value;
+  const detail=document.getElementById('q-detail').value.trim();
+  if(!title){toast('Sawaal likhein!');return;}
+  const{error}=await SB.from('cc_questions').insert({id:genId(),title,subject,detail,student_roll:CU.roll,student_name:CU.name,votes:0,created_at:Date.now()});
+  if(error){toast('Error: '+error.message);return;}
+  document.getElementById('q-title').value='';document.getElementById('q-detail').value='';
+  closeM('qm');await loadAll();renderQA();renderHome();toast('✓ Sawaal post!');
+}
+
+// ANSWER
+function openAnswer(qid){
+  ansQid=qid;
+  const q=allQuestions.find(x=>x.id===qid);
+  document.getElementById('ans-q-prev').textContent=q?q.title:'';
+  document.getElementById('a-text').value='';
+  openM('ansm');
+}
+async function submitAnswer(){
+  const text=document.getElementById('a-text').value.trim();
+  if(!text){toast('Jawab likhein!');return;}
+  const{error}=await SB.from('cc_answers').insert({id:genId(),question_id:ansQid,answer_text:text,student_roll:CU.roll,student_name:CU.name,created_at:Date.now()});
+  if(error){toast('Error: '+error.message);return;}
+  closeM('ansm');await loadAll();renderQA();toast('✓ Jawab post!');
+}
+async function vote(qid,dir){
+  const q=allQuestions.find(x=>x.id===qid);if(!q)return;
+  await SB.from('cc_questions').update({votes:(q.votes||0)+dir}).eq('id',qid);
+  await loadAll();renderQA();
+}
+
+// ANNOUNCEMENT
+async function submitAnn(){
+  const title=document.getElementById('an-title').value.trim();
+  const type=document.getElementById('an-type').value;
+  const extra=document.getElementById('an-extra').value.trim();
+  if(!title){toast('Title likhein!');return;}
+  await SB.from('cc_announcements').insert({id:genId(),title,type,extra,posted_by:CU.name,created_at:Date.now()});
+  document.getElementById('an-title').value='';closeM('am');await loadAll();renderAnn();toast('✓ Posted!');
+}
+async function delRow(table,id,rfn){
+  if(!confirm('Delete?'))return;
+  await SB.from(table).delete().eq('id',id);
+  await loadAll();rfn();toast('Deleted');
+}
+
+// RENDER HOME
+function renderHome(){
+  document.getElementById('home-stats').innerHTML=
+    '<div class="scard"><div class="scard-num" style="color:var(--pr)">'+allStudents.length+'</div><div class="scard-lbl">Students</div></div>'+
+    '<div class="scard"><div class="scard-num" style="color:var(--ac)">'+allProjects.length+'</div><div class="scard-lbl">Projects</div></div>'+
+    '<div class="scard"><div class="scard-num" style="color:var(--wn)">'+allQuestions.length+'</div><div class="scard-lbl">Sawalon</div></div>'+
+    '<div class="scard"><div class="scard-num" style="color:var(--dn)">'+allAnswers.length+'</div><div class="scard-lbl">Jawabat</div></div>';
+  const items=[...allProjects.map(p=>Object.assign({},p,{kind:'proj'})),...allQuestions.map(q=>Object.assign({},q,{kind:'q'}))].sort((a,b)=>(b.created_at||0)-(a.created_at||0)).slice(0,10);
+  const feed=document.getElementById('home-feed');
+  if(!items.length){feed.innerHTML='<div class="empty"><i class="ti ti-activity"></i><p>Koi activity nahi</p></div>';return;}
+  feed.innerHTML=items.map(it=>{
+    if(it.kind==='proj')return '<div class="item-card"><div style="width:32px;height:32px;border-radius:var(--r);background:var(--ac-l);color:var(--ac);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-folder"></i></div><div class="item-body"><div class="item-title">'+escH(it.title)+'</div><div class="item-meta"><span class="tag '+subColor(it.subject)+'">'+subLabel(it.subject)+'</span><span>'+escH(it.student_name)+' ('+it.student_roll+')</span><span>'+timeAgo(it.created_at)+'</span></div></div><span class="tag green">Project</span></div>';
+    return '<div class="item-card"><div style="width:32px;height:32px;border-radius:var(--r);background:var(--pr-l);color:var(--pr);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-message-dots"></i></div><div class="item-body"><div class="item-title">'+escH(it.title)+'</div><div class="item-meta"><span class="tag '+subColor(it.subject)+'">'+subLabel(it.subject)+'</span><span>'+escH(it.student_name)+' ('+it.student_roll+')</span><span>'+timeAgo(it.created_at)+'</span></div></div><span class="tag blue">Sawaal</span></div>';
+  }).join('');
+}
+
+// RENDER STUDENTS
+function renderStudents(){
+  const q=(document.getElementById('stu-search')||{}).value||'';
+  let sts=[...allStudents];
+  if(q)sts=sts.filter(s=>s.name.toLowerCase().includes(q.toLowerCase())||s.roll.toLowerCase().includes(q.toLowerCase()));
+  sts.sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('stu-count').textContent=sts.length+' student(s)';
+  if(!sts.length){document.getElementById('stu-list').innerHTML='<div class="empty"><i class="ti ti-users"></i><p>Koi nahi mila</p></div>';return;}
+  document.getElementById('stu-list').innerHTML=sts.map(s=>{
+    const[bg,tc]=avColor(s.roll);
+    const mp=allProjects.filter(p=>p.student_roll===s.roll).length;
+    const mq=allQuestions.filter(q=>q.student_roll===s.roll).length;
+    var card=document.createElement('div');
+    card.className='folder-card';
+    card.setAttribute('data-roll',s.roll);
+    card.onclick=function(){openStuDetail(this.getAttribute('data-roll'));};
+    card.innerHTML='<div style="display:flex;align-items:center;gap:10px"><div class="fav" style="background:'+bg+';color:'+tc+'">'+initials(s.name)+'</div><div style="flex:1"><div style="font-weight:600;font-size:14px">'+escH(s.name)+'</div><div style="font-size:12px;color:var(--txt2)">'+s.roll+' · '+(s.role==='teacher'?'Teacher':'Student')+'</div></div><i class="ti ti-folder-open" style="font-size:18px;color:var(--txt3)"></i></div><div class="folder-stats"><span class="fstat"><i class="ti ti-folder"></i> <strong>'+mp+'</strong> Projects</span><span class="fstat"><i class="ti ti-message-dots"></i> <strong>'+mq+'</strong> Sawalon</span></div>';
+    return card.outerHTML;
+  }).join('');
+}
+function openStuDetail(roll){
+  const s=allStudents.find(x=>x.roll===roll);if(!s)return;
+  document.getElementById('stu-list-view').style.display='none';
+  document.getElementById('stu-detail').style.display='block';
+  const[bg,tc]=avColor(s.roll);
+  const mp=allProjects.filter(p=>p.student_roll===roll);
+  const mq=allQuestions.filter(q=>q.student_roll===roll);
+  document.getElementById('stu-detail-hdr').innerHTML='<div style="display:flex;align-items:center;gap:12px"><div class="fav" style="width:50px;height:50px;font-size:16px;background:'+bg+';color:'+tc+'">'+initials(s.name)+'</div><div><div style="font-family:var(--fh);font-size:18px;font-weight:700">'+escH(s.name)+'</div><div style="font-size:13px;color:var(--txt2);margin-top:3px">'+s.roll+' · '+(s.role==='teacher'?'Teacher':'Student')+'</div></div><div style="margin-left:auto;display:flex;gap:16px;text-align:center"><div><div style="font-size:22px;font-weight:700;color:var(--ac)">'+mp.length+'</div><div style="font-size:11px;color:var(--txt2)">Projects</div></div><div><div style="font-size:22px;font-weight:700;color:var(--pr)">'+mq.length+'</div><div style="font-size:11px;color:var(--txt2)">Sawalon</div></div></div></div>';
+  document.getElementById('stu-detail-projs').innerHTML='<div class="section-lbl"><i class="ti ti-folder"></i> Projects ('+mp.length+')</div>'+(mp.length?mp.map(p=>projCard(p)).join(''):'<div class="empty" style="padding:1rem"><i class="ti ti-folder-off"></i><p>Koi project nahi</p></div>');
+  document.getElementById('stu-detail-qs').innerHTML='<div class="section-lbl"><i class="ti ti-message-dots"></i> Sawalon ('+mq.length+')</div>'+(mq.length?mq.map(q=>qaCard(q)).join(''):'<div class="empty" style="padding:1rem"><i class="ti ti-message-off"></i><p>Koi sawaal nahi</p></div>');
+}
+function closeStuDetail(){document.getElementById('stu-list-view').style.display='block';document.getElementById('stu-detail').style.display='none';}
+
+// RENDER PROJECTS
+function setPF(f,btn){projFilter=f;document.querySelectorAll('#pf .btn').forEach(b=>b.classList.remove('btp'));btn.classList.add('btp');renderProjects();}
+function renderProjects(){
+  const q=((document.getElementById('proj-search')||{}).value||'').toLowerCase();
+  let ps=[...allProjects];
+  if(projFilter!=='all')ps=ps.filter(p=>p.subject===projFilter);
+  if(q)ps=ps.filter(p=>p.title.toLowerCase().includes(q)||p.student_name.toLowerCase().includes(q)||p.student_roll.toLowerCase().includes(q));
+  const el=document.getElementById('proj-list');if(!el)return;
+  if(!ps.length){el.innerHTML='<div class="empty"><i class="ti ti-folder-off"></i><p>Koi project nahi</p></div>';return;}
+  el.innerHTML=ps.map(p=>projCard(p)).join('');
+}
+function projCard(p){
+  const canDel=CU&&(CU.roll===p.student_roll||CU.role==='teacher');
+  return '<div class="item-card"><div style="width:32px;height:32px;border-radius:var(--r);background:var(--ac-l);color:var(--ac);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="ti ti-folder"></i></div><div class="item-body"><div class="item-title">'+escH(p.title)+'</div>'+(p.description?'<div style="font-size:12px;color:var(--txt2);margin:3px 0">'+escH(p.description)+'</div>':'')+'<div class="item-meta"><span class="tag '+subColor(p.subject)+'">'+subLabel(p.subject)+'</span><span><strong>'+escH(p.student_name)+'</strong> ('+p.student_roll+')</span><span>'+timeAgo(p.created_at)+'</span>'+(p.github?'<a href="'+p.github+'" target="_blank" style="color:var(--pr);font-size:11px;text-decoration:none"><i class="ti ti-brand-github"></i> GitHub</a>':'')+(p.demo?'<a href="'+p.demo+'" target="_blank" style="color:var(--ac);font-size:11px;text-decoration:none"><i class="ti ti-external-link"></i> Demo</a>':'')+(p.file_url?'<a href="'+p.file_url+'" target="_blank" style="color:var(--wn);font-size:11px;text-decoration:none;background:var(--wn-l);padding:2px 7px;border-radius:20px"><i class="ti ti-download"></i> '+escH(p.file_name||'File')+'</a>':'')+'</div></div>'+(canDel?'<button class="btn btn-del" style="padding:5px 8px" data-id="'+p.id+'" onclick="delRow(this,renderProjects)"><i class="ti ti-trash"></i></button>':'')+'</div>';
+}
+
+// RENDER QA
+function renderQA(){
+  const q=((document.getElementById('qa-search')||{}).value||'').toLowerCase();
+  let qs=[...allQuestions].sort((a,b)=>(b.votes||0)-(a.votes||0));
+  if(q)qs=qs.filter(x=>x.title.toLowerCase().includes(q)||x.student_name.toLowerCase().includes(q)||x.student_roll.toLowerCase().includes(q));
+  const el=document.getElementById('qa-list');if(!el)return;
+  if(!qs.length){el.innerHTML='<div class="empty"><i class="ti ti-message-off"></i><p>Koi sawaal nahi</p></div>';return;}
+  el.innerHTML=qs.map(q=>qaCard(q)).join('');
+}
+function qaCard(q){
+  const canDel=CU&&(CU.roll===q.student_roll||CU.role==='teacher');
+  const ans=allAnswers.filter(a=>a.question_id===q.id);
+  const ansHtml=ans.map(a=>'<div style="background:var(--sur);border-radius:var(--r);padding:8px 10px;margin-top:5px;font-size:12px;border:1px solid var(--bd)"><div style="font-weight:500;color:var(--ac);margin-bottom:2px"><i class="ti ti-check" style="font-size:11px"></i> '+escH(a.student_name)+' ('+a.student_roll+') · '+timeAgo(a.created_at)+'</div><div>'+escH(a.answer_text)+'</div></div>').join('');
+  return '<div class="card"><div style="display:flex;gap:10px;align-items:flex-start"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:30px"><button class="btn" style="padding:3px 7px" onclick="voteQ(this,1)"><i class="ti ti-chevron-up" style="font-size:13px"></i></button><span style="font-size:13px;font-weight:600">'+(q.votes||0)+'</span><button class="btn" style="padding:3px 7px" onclick="voteQ(this,-1)"><i class="ti ti-chevron-down" style="font-size:13px"></i></button></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500;margin-bottom:4px">'+escH(q.title)+'</div>'+(q.detail?'<div style="font-size:12px;color:var(--txt2);margin-bottom:5px">'+escH(q.detail)+'</div>':'')+'<div class="item-meta"><span class="tag '+subColor(q.subject)+'">'+subLabel(q.subject)+'</span><span><strong>'+escH(q.student_name)+'</strong> ('+q.student_roll+')</span><span>'+timeAgo(q.created_at)+'</span><span style="color:var(--pr)"><i class="ti ti-message" style="font-size:12px"></i> '+ans.length+' jawab</span></div>'+ansHtml+'</div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn btp" style="padding:5px 9px;font-size:11px" onclick="openAnswerQ(this)"><i class="ti ti-reply"></i></button>'+(canDel?'<button class="btn btn-del" style="padding:5px 8px" data-qid="'+q.id+'" onclick="delRowQ(this,renderQA)"><i class="ti ti-trash"></i></button>':'')+'</div></div></div>';
+}
+
+// RENDER ANN
+function renderAnn(){
+  const ti={urgent:'ti-alert-triangle',schedule:'ti-clock',resource:'ti-file-certificate',event:'ti-trophy',general:'ti-speakerphone'};
+  const tc={urgent:'red',schedule:'blue',resource:'green',event:'amber',general:'blue'};
+  const el=document.getElementById('ann-list');
+  const canDel=CU&&CU.role==='teacher';
+  if(!allAnn.length){el.innerHTML='<div class="empty"><i class="ti ti-speakerphone"></i><p>Koi announcement nahi</p></div>';return;}
+  el.innerHTML=allAnn.map(a=>{
+    const col=tc[a.type]||'blue';const ico=ti[a.type]||'ti-speakerphone';
+    const colVar={red:'dn',blue:'pr',green:'ac',amber:'wn'}[col]||'pr';
+    return '<div class="ann '+(a.type==='urgent'?'urgent':'infob')+'"><div class="ann-icon" style="background:var(--'+colVar+'-l);color:var(--'+colVar+')"><i class="ti '+ico+'"></i></div><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:3px"><span class="tag '+col+'">'+a.type+'</span> '+escH(a.title)+'</div>'+(a.extra?'<div style="font-size:12px;color:var(--txt2);margin-bottom:3px">'+escH(a.extra)+'</div>':'')+'<div style="font-size:11px;color:var(--txt3)">'+escH(a.posted_by)+' · '+timeAgo(a.created_at)+'</div></div>'+(canDel?'<button class="btn btn-del" style="padding:5px 8px;align-self:flex-start" data-aid="'+a.id+'" onclick="delAnn(this)"><i class="ti ti-trash"></i></button>':'')+'</div>';
+  }).join('');
+}
+
+// AI CHATBOT
+function quickQ(q){document.getElementById('chat-input').value=q;sendChat();}
+function clearChat(){chatHistory=[];const m=document.getElementById('chat-msgs');if(m)m.innerHTML='<div class="ai-msg bot">Assalam o Alaikum! 👋 Sawaal poochein!</div>';}
+
+async function sendChat(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim();if(!msg)return;
+  const msgs=document.getElementById('chat-msgs');
+  const btn=document.getElementById('chat-btn');
+  msgs.innerHTML+='<div class="ai-msg user">'+escH(msg)+'</div>';
+  inp.value='';btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i>';
+  const tid='t'+Date.now();
+  msgs.innerHTML+='<div class="ai-msg thinking" id="'+tid+'">Soch raha hun...</div>';
+  msgs.scrollTop=msgs.scrollHeight;
+  chatHistory.push({role:'user',content:msg});
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1024,
+        system:'Tum PIAIC ke AI Tutor ho. Roman Urdu mein jawab do. Python, AI/ML, Data Science, Web Dev mein expert ho. Examples se samjhao. Friendly raho.',
+        messages:chatHistory
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    const reply=data.content[0].text;
+    chatHistory.push({role:'assistant',content:reply});
+    document.getElementById(tid).remove();
+    msgs.innerHTML+='<div class="ai-msg bot">'+fmtMsg(reply)+'</div>';
+  }catch(e){
+    document.getElementById(tid).remove();
+    msgs.innerHTML+='<div class="ai-msg bot" style="color:var(--dn)">Error: '+e.message+'</div>';
+  }
+  btn.disabled=false;btn.innerHTML='<i class="ti ti-send"></i>';msgs.scrollTop=msgs.scrollHeight;
+}
+
+// AI REVIEW
+function setRT(tab,btn){
+  reviewTab=tab;
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['code','desc','link','file'].forEach(t=>{const el=document.getElementById('rt-'+t);if(el)el.style.display=t===tab?'block':'none';});
+  document.getElementById('review-result').classList.remove('show');
+}
+function setRType(t){reviewType=t;toast('Type: '+t);}
+function loadFileForReview(inp){
+  if(!inp.files[0])return;
+  const f=inp.files[0];
+  document.getElementById('rv-file-name').textContent='📎 '+f.name;
+  const reader=new FileReader();
+  reader.onload=e=>{fileContent=e.target.result;toast('File loaded: '+f.name);};
+  if(f.type==='application/pdf')reader.readAsDataURL(f);
+  else reader.readAsText(f);
+}
+
+async function doReview(){
+  const btn=document.getElementById('review-btn');
+  const resultEl=document.getElementById('review-result');
+  let prompt='';
+  const ctx='Tum PIAIC ke expert Code Reviewer ho. Roman Urdu mein detailed, helpful feedback do.\n\n';
+  const tp={
+    bugs:'Is code mein sare bugs dhundho aur fix batao.',
+    improve:'Code review karo. Best practices aur improvements batao.',
+    explain:'Code ko step by step Roman Urdu mein explain karo.',
+    grade:'Code ko A/B/C/D/F grade do. Detailed feedback do.'
+  };
+  if(reviewTab==='code'){
+    const code=document.getElementById('rv-code').value.trim();
+    if(!code){toast('Code paste karein!');return;}
+    prompt=ctx+(tp[reviewType]||tp.improve)+'\n\nCode:\n'+code;
+  }else if(reviewTab==='desc'){
+    const desc=document.getElementById('rv-desc').value.trim();
+    if(!desc){toast('Description likhein!');return;}
+    prompt=ctx+'Is project ka '+reviewType+' karo.\n\nProject:\n'+desc;
+  }else if(reviewTab==='link'){
+    const link=document.getElementById('rv-link').value.trim();
+    const extra=document.getElementById('rv-link-desc').value.trim();
+    if(!link){toast('Link paste karein!');return;}
+    prompt=ctx+'Is project ka '+reviewType+' karo.\n\nLink: '+link+(extra?'\nDetails: '+extra:'');
+  }else if(reviewTab==='file'){
+    if(!fileContent){toast('File select karein!');return;}
+    prompt=ctx+(tp[reviewType]||tp.improve)+'\n\nFile content:\n'+fileContent.slice(0,3000);
+  }
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Reviewing...';
+  resultEl.innerHTML='<div style="color:var(--txt2);text-align:center;padding:1rem"><i class="ti ti-loader"></i> AI soch raha hai...</div>';
+  resultEl.classList.add('show');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    resultEl.innerHTML='<div style="font-size:13px;line-height:1.7">'+fmtMsg(data.content[0].text)+'</div>';
+  }catch(e){
+    resultEl.innerHTML='<div style="color:var(--dn);font-size:13px">Error: '+e.message+'</div>';
+  }
+  btn.disabled=false;btn.innerHTML='<i class="ti ti-sparkles"></i> AI Review Karein';
+}
+
+// Helper functions for onclick  
+async function delAnn(btn){
+  var id=btn.getAttribute('data-aid');
+  if(!confirm('Delete?'))return;
+  await SB.from('cc_announcements').delete().eq('id',id);
+  await loadAll();renderAnn();toast('Deleted');
+}
+
+async function delRowAnn(btn){
+  var id=btn.getAttribute('data-id');
+  if(!confirm('Delete?'))return;
+  await SB.from('cc_announcements').delete().eq('id',id);
+  await loadAll();renderAnn();toast('Deleted');
+}
+
+function delRow(btn, rfn){
+  var id=btn.getAttribute('data-id');
+  var table=btn.className.includes('proj')?'cc_projects':'cc_announcements';
+  if(!confirm('Delete?'))return;
+  SB.from(table).delete().eq('id',id).then(function(){loadAll().then(function(){rfn();});});
+  toast('Deleted');
+}
+function delRowQ(btn, rfn){
+  var id=btn.getAttribute('data-qid');
+  if(!confirm('Delete?'))return;
+  SB.from('cc_questions').delete().eq('id',id).then(function(){loadAll().then(function(){rfn();});});
+  toast('Deleted');
+}
+async function voteQ(btn,dir){
+  var id=btn.getAttribute('data-qid');
+  var q=allQuestions.find(function(x){return x.id===id;});
+  if(!q)return;
+  await SB.from('cc_questions').update({votes:(q.votes||0)+dir}).eq('id',id);
+  await loadAll();renderQA();
+}
+function openAnswerQ(btn){
+  var id=btn.getAttribute('data-qid');
+  openAnswer(id);
+}
+</script>
+</body>
+</html>
