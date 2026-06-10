@@ -294,7 +294,7 @@ code{background:var(--s2);padding:2px 6px;border-radius:4px;font-size:12px;font-
 <script>
 var SB_URL = 'https://rhobesvhfauuovvvxvrr.supabase.co';
 var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJob2Jlc3ZoZmF1dW92dnZ4dnJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzY4ODYsImV4cCI6MjA5NjU1Mjg4Nn0.J_9Z_rKH05qIaEslqO0ok4jk8lQSgSlnk8qZVqe9yB0';
-var API_KEY = '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';
+var API_KEY = ''; // Key server side hai
 var SB = null;
 var CU = null;
 var PF = 'all';
@@ -723,9 +723,9 @@ async function sendChat(){
   msgs.scrollTop=msgs.scrollHeight;
   CH.push({role:'user',content:msg});
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var res=await fetch('/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1024,system:'Tum PIAIC ke AI Tutor ho. Roman Urdu mein jawab do. Python, AI/ML, Data Science, Web Dev mein expert ho. Simple examples se samjhao. Friendly raho.',messages:CH})
     });
     var data=await res.json();
@@ -773,9 +773,9 @@ async function doReview(){
   rv.innerHTML='<div style="color:var(--tx2);text-align:center;padding:1rem"><i class="ti ti-loader"></i> AI analyze kar raha hai...</div>';
   rv.classList.add('show');
   try{
-    var res=await fetch('https://api.anthropic.com/v1/messages',{
+    var res=await fetch('/api/chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:prompt}]})
     });
     var data=await res.json();
