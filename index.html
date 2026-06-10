@@ -258,6 +258,10 @@ textarea{resize:vertical;min-height:70px}
 
     <!-- AI ASSISTANT -->
     <div class="panel" id="panel-ai">
+      <div style="background:var(--pr-l);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--pr);display:flex;align-items:center;gap:8px">
+        <i class="ti ti-info-circle" style="font-size:16px"></i>
+        <span>AI Assistant Claude.ai ke zariye kaam karta hai — "Claude.ai mein Kholen" button click karein, jawab copy karke wapis ayen!</span>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 
         <!-- LEFT: AI CHATBOT -->
@@ -291,6 +295,7 @@ textarea{resize:vertical;min-height:70px}
           <div class="review-tabs">
             <button class="rtab active" onclick="setRTab('paste',this)"><i class="ti ti-clipboard"></i> Code Paste</button>
             <button class="rtab" onclick="setRTab('desc',this)"><i class="ti ti-file-description"></i> Description</button>
+            <button class="rtab" onclick="setRTab('link',this)"><i class="ti ti-link"></i> GitHub/Drive</button>
           </div>
 
           <div id="rt-paste">
@@ -311,6 +316,18 @@ textarea{resize:vertical;min-height:70px}
               <button class="qbtn" onclick="setReviewType('feedback')">💡 Feedback</button>
               <button class="qbtn" onclick="setReviewType('improve')">⚡ Suggestions</button>
               <button class="qbtn" onclick="setReviewType('grade')">📊 Grade karein</button>
+            </div>
+          </div>
+
+          <div id="rt-link" style="display:none">
+            <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">GitHub ya Google Drive link paste karein:</label>
+            <input type="text" id="review-link" placeholder="https://github.com/username/repo  ya  https://drive.google.com/..." style="width:100%;border:1px solid var(--bd);border-radius:var(--r);padding:8px 10px;font-family:var(--fb);font-size:13px;color:var(--txt);background:var(--sur2);outline:none;margin-bottom:8px"/>
+            <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Project ke baare mein thoda batao (optional):</label>
+            <textarea id="review-link-desc" placeholder="Jaise: Yeh mera Python machine learning project hai jo spam detection karta hai..." style="width:100%;height:80px;border:1px solid var(--bd);border-radius:var(--r);padding:8px 10px;font-family:var(--fb);font-size:13px;color:var(--txt);background:var(--sur2);outline:none;resize:none;margin-bottom:8px"></textarea>
+            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+              <button class="qbtn" onclick="setReviewType('feedback')">💡 Feedback</button>
+              <button class="qbtn" onclick="setReviewType('improve')">⚡ Improve</button>
+              <button class="qbtn" onclick="setReviewType('grade')">📊 Grade</button>
             </div>
           </div>
 
@@ -1051,6 +1068,8 @@ function setRTab(tab, btn) {
   btn.classList.add('active');
   document.getElementById('rt-paste').style.display = tab==='paste'?'block':'none';
   document.getElementById('rt-desc').style.display = tab==='desc'?'block':'none';
+  const linkEl = document.getElementById('rt-link');
+  if(linkEl) linkEl.style.display = tab==='link'?'block':'none';
   document.getElementById('review-result').classList.remove('show');
 }
 
@@ -1112,108 +1131,42 @@ async function sendChat() {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-async function reviewProject() {
-  const btn = document.getElementById('review-btn');
+function reviewProject() {
   const resultEl = document.getElementById('review-result');
-
-  let content_text = '';
   let prompt = '';
+  const tp_code = {bugs:'Is code mein bugs aur errors dhundho. Har bug explain karo aur fix batao.',improve:'Is code ko review karo. Best practices, improvements, aur optimizations batao.',explain:'Is code ko step by step Roman Urdu mein explain karo.',grade:'Is code ko A/B/C/D/F grade do. PIAIC standards ke mutabiq detailed feedback do.'};
+  const tp_desc = {feedback:'Is project ka detailed feedback do. Kya acha hai, kya improve ho sakta hai.',improve:'Is project mein kya features add ho sakte hain? Detailed suggestions do.',grade:'Is project ko PIAIC standards ke mutabiq A/B/C/D/F grade do.'};
 
-  if(reviewTab === 'paste') {
-    content_text = document.getElementById('review-code').value.trim();
-    if(!content_text) { toast('Pehle code paste karein!'); return; }
+  const context = 'Tum PIAIC ke expert AI Tutor aur Code Reviewer ho. Roman Urdu mein helpful, detailed feedback do. Students ko encourage karo.\n\n';
 
-    const typePrompts = {
-      bugs: 'Is code mein bugs aur errors dhundho. Har bug explain karo aur fix bhi batao.',
-      improve: 'Is code ko review karo aur improvements suggest karo. Best practices batao.',
-      explain: 'Is code ko line by line explain karo simple Urdu mein.',
-      grade: 'Is code ko grade do (A/B/C/D/F). Code quality, logic, aur best practices dekh kar detailed feedback do.'
-    };
-    prompt = `${typePrompts[reviewType]||typePrompts.improve}
-
-Code:
-\`\`\`
-${content_text}
-\`\`\``;
-
-  } else {
-    content_text = document.getElementById('review-desc').value.trim();
-    if(!content_text) { toast('Pehle description likhein!'); return; }
-
-    const typePrompts = {
-      feedback: 'Is project ka detailed feedback do. Kya acha hai, kya improve ho sakta hai.',
-      improve: 'Is project mein kya kya features add kiye ja sakte hain? Suggestions do.',
-      grade: 'Is project ko grade do (A/B/C/D/F). PIAIC standards ke hisaab se evaluate karo.'
-    };
-    prompt = `${typePrompts[reviewType]||typePrompts.feedback}
-
-Project Description:
-${content_text}`;
+  if(reviewTab==='paste') {
+    const code = document.getElementById('review-code').value.trim();
+    if(!code){toast('Pehle code paste karein!');return;}
+    prompt = context + (tp_code[reviewType]||tp_code.improve) + '\n\nCode:\n' + code;
+  } else if(reviewTab==='desc') {
+    const desc = document.getElementById('review-desc').value.trim();
+    if(!desc){toast('Pehle description likhein!');return;}
+    prompt = context + (tp_desc[reviewType]||tp_desc.feedback) + '\n\nProject Description:\n' + desc;
+  } else if(reviewTab==='link') {
+    const link = document.getElementById('review-link').value.trim();
+    const extraDesc = document.getElementById('review-link-desc').value.trim();
+    if(!link){toast('Pehle link paste karein!');return;}
+    const typeText = {feedback:'Is project ka feedback do',improve:'Improvements suggest karo',grade:'Grade do'};
+    prompt = context + (typeText[reviewType]||typeText.feedback) + '.\n\nProject Link: ' + link + (extraDesc ? '\n\nProject Details: ' + extraDesc : '') + '\n\nNote: Link dekh kar project ko review karo.';
   }
 
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Reviewing...';
-  resultEl.classList.remove('show');
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        system: `Tum PIAIC ke ek expert code reviewer aur mentor ho. Roman Urdu mein detailed, helpful feedback do. Students ko encourage karo lekin honest feedback bhi do. Specific improvements suggest karo.`,
-        messages:[{role:'user', content: prompt}]
-      })
-    });
-
-    const data = await response.json();
-    const reply = data.content[0].text;
-    resultEl.textContent = reply;
-    resultEl.classList.add('show');
-
-  } catch(e) {
-    resultEl.textContent = 'Error: API se connect nahi ho saka. Please try again.';
-    resultEl.classList.add('show');
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-sparkles"></i> AI Review Karein';
+  const encoded = encodeURIComponent(prompt);
+  resultEl.innerHTML = '<div style="background:var(--pr-l);border-radius:var(--r);padding:1rem;border:1px solid var(--pr)">' +
+    '<div style="font-weight:600;color:var(--pr);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-sparkles"></i> Claude.ai mein Review Karein</div>' +
+    '<p style="font-size:12px;color:var(--txt2);margin-bottom:10px">Neeche button click karein — Claude.ai mein detailed review milega:</p>' +
+    '<a href="https://claude.ai/new?q='+encoded+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--pr);color:#fff;padding:8px 16px;border-radius:var(--r);text-decoration:none;font-size:13px;font-weight:500">' +
+    '<i class="ti ti-external-link"></i> Claude.ai mein Review Kholen</a>' +
+    '<p style="font-size:11px;color:var(--txt3);margin-top:8px">Review milne ke baad yahan copy-paste kar sakte hain</p>' +
+    '<textarea id="paste-review-here" placeholder="Claude.ai se review copy karke yahan paste karein..." style="width:100%;margin-top:8px;height:80px;border:1px solid var(--bd);border-radius:var(--r);padding:8px;font-family:var(--fb);font-size:12px;color:var(--txt);background:var(--sur);outline:none;resize:none"></textarea>' +
+    '</div>';
+  resultEl.classList.add('show');
 }
 
-</script>
-</body>
-</html>
-<script>
-// AI ASSISTANT FUNCTIONS
-let chatHistory = [];
-let reviewType = 'improve';
-let reviewTab = 'paste';
-
-function quickQ(q) {
-  document.getElementById('chat-input').value = q;
-  sendChat();
-}
-
-function clearChat() {
-  chatHistory = [];
-  const msgs = document.getElementById('chat-messages');
-  if(msgs) msgs.innerHTML = '<div class="ai-msg assistant">Assalam o Alaikum! Main aapka AI Tutor hun. Python, AI/ML, Data Science, Web Dev — kisi bhi topic par sawaal poochein!</div>';
-}
-
-function setRTab(tab, btn) {
-  reviewTab = tab;
-  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('rt-paste').style.display = tab==='paste'?'block':'none';
-  document.getElementById('rt-desc').style.display = tab==='desc'?'block':'none';
-  document.getElementById('review-result').classList.remove('show');
-}
-
-function setReviewType(type) {
-  reviewType = type;
-  toast('Review type set: ' + type);
-}
 
 async function callClaude(systemPrompt, userMsg, maxTokens) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -1235,44 +1188,23 @@ async function sendChat() {
   const msg = input.value.trim();
   if(!msg) return;
   const msgs = document.getElementById('chat-messages');
-  const btn = document.getElementById('chat-send-btn');
 
   msgs.innerHTML += '<div class="ai-msg user">'+msg+'</div>';
+
+  const systemContext = 'Tum PIAIC ke AI Tutor ho. Roman Urdu mein jawab do. Python, AI/ML, Data Science, Web Dev mein expert ho. Simple examples se samjhao. Friendly raho.\n\nStudent ka sawaal hai:';
+  const fullPrompt = systemContext + '\n\n' + msg;
+  const encoded = encodeURIComponent(fullPrompt);
+
+  msgs.innerHTML += '<div class="ai-msg assistant" style="background:var(--pr-l);border:1px solid var(--pr)">'+
+    '<strong style="color:var(--pr)">Claude.ai mein jawab len:</strong><br><br>'+
+    '<a href="https://claude.ai/new?q='+encoded+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--pr);color:#fff;padding:7px 14px;border-radius:var(--r);text-decoration:none;font-size:12px;font-weight:500">'+
+    '<i class="ti ti-external-link"></i> Claude.ai mein Kholen</a>'+
+    '<br><br><span style="font-size:11px;color:var(--txt2)">Link khul jayega — jawab copy karke wapis yahan paste karein</span>'+
+    '</div>';
+
   input.value='';
-  btn.disabled=true;
-  btn.innerHTML='<i class="ti ti-loader"></i>';
-  const thinkId='think-'+Date.now();
-  msgs.innerHTML += '<div class="ai-msg thinking" id="'+thinkId+'">Soch raha hun...</div>';
   msgs.scrollTop=msgs.scrollHeight;
-
   chatHistory.push({role:'user',content:msg});
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:'Tum PIAIC ke AI Tutor ho. Roman Urdu mein jawab do. Python, AI/ML, Data Science, Web Dev mein expert ho. Simple examples se samjhao. Friendly raho.',
-        messages: chatHistory
-      })
-    });
-    const data = await response.json();
-    const reply = data.content[0].text;
-    chatHistory.push({role:'assistant',content:reply});
-    const el = document.getElementById(thinkId);
-    if(el) el.remove();
-    msgs.innerHTML += '<div class="ai-msg assistant">'+reply+'</div>';
-  } catch(e) {
-    const el = document.getElementById(thinkId);
-    if(el) el.remove();
-    msgs.innerHTML += '<div class="ai-msg assistant">Error: API se connect nahi hua. Try again.</div>';
-  }
-
-  btn.disabled=false;
-  btn.innerHTML='<i class="ti ti-send"></i>';
-  msgs.scrollTop=msgs.scrollHeight;
 }
 
 async function reviewProject() {
