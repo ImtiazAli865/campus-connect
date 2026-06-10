@@ -419,15 +419,11 @@ function escH(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replac
 function fmtMsg(t){
   if(!t)return '';
   t=escH(t);
-  t=t.replace(/```[a-zA-Z]*
-([\s\S]*?)```/g,(_,c)=>'<pre>'+c+'</pre>');
-  t=t.replace(/`([^`
-]+)`/g,'<code>$1</code>');
-  t=t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  t=t.replace(/
-/g,'<br>');
+  t=t.split('\n').join('<br>');
   return t;
 }
+
+
 function showScreen(id){
   ['login-screen','loading-screen','main-app'].forEach(s=>{
     document.getElementById(s).style.display=s===id?'block':'none';
@@ -754,7 +750,7 @@ async function doReview(){
   if(reviewTab==='code'){
     const code=document.getElementById('rv-code').value.trim();
     if(!code){toast('Code paste karein!');return;}
-    prompt=ctx+(tp[reviewType]||tp.improve)+'\n\nCode:\n```\n'+code+'\n```';
+    prompt=ctx+(tp[reviewType]||tp.improve)+'\n\nCode:\n'+code;
   }else if(reviewTab==='desc'){
     const desc=document.getElementById('rv-desc').value.trim();
     if(!desc){toast('Description likhein!');return;}
